@@ -1,1 +1,11 @@
 streamlit
+pandas
+openpyxl
+geopandas
+shapely
+pyproj
+fiona
+rtree
+xlsxwriter
+folium
+streamlit-folium
