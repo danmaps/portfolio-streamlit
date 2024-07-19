@@ -22,3 +22,10 @@ fancy_markdown(text)
 
 
 st.image("assets/ai_tools.jpg")
+
+st.markdown("""
+These tools are designed to work in conjunction with ArcGIS Pro and rely on the OpenAI API. The results can be equal parts funny and terrible.
+""")
+
+st.image("assets/florida_code.jpg")
+st.image("assets/florida_map.jpg")
