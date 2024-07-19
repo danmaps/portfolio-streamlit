@@ -1,7 +1,7 @@
 from pathlib import Path
 import streamlit as st
 
-st.set_page_config(page_title="About Spatial Proximity Excel Enrichment", layout="wide")
+st.set_page_config(page_title="About Spatial Proximity Excel Enrichment")
 
 
 def read_markdown_file(markdown_file):
