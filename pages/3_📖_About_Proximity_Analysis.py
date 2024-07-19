@@ -10,5 +10,5 @@ def read_markdown_file(markdown_file):
 
 
 # Example of embedding code using markdown 
-st.markdown(read_markdown_file(r"pages\3_About_Proximity_Analysis.md"), unsafe_allow_html=True)
+st.markdown(read_markdown_file(r"assets\About_Proximity_Analysis.md"), unsafe_allow_html=True)
 

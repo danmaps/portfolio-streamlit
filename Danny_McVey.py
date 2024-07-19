@@ -1,8 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title="About Danny McVey")
-
-st.title("Danny McVey")
+st.set_page_config(page_title="Danny McVey")
 
 st.markdown("""
             # About Me
