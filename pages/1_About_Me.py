@@ -30,6 +30,6 @@ My passion for GIS technology and problem-solving drives my work. I enjoy collab
 
 Outside of work, I enjoy trail running and CrossFit, which help me stay active and clear-headed. I also love experimenting with AI tools and exploring new ways to integrate them into my professional work.
 
-Feel free to explore my portfolio to learn more about my projects and experience. Let's connect and see how we can collaborate to drive the future of GIS and data technology together.
+Feel free to explore my portfolio to learn more about my projects and experience. Let's [connect](https://www.linkedin.com/in/dannymcvey/) and see how we can collaborate to drive the future of GIS and data technology together.
 
 """)
