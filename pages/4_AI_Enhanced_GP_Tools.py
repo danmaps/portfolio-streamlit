@@ -18,5 +18,7 @@ allowing it to evaluate the results, and make recommendations based on these eva
 
 This approach removes friction caused by ignorance, skepticism, and bad UI, ultimately bridging the gap between AI limitations and practical applications in GIS. My goal is to create a seamless and efficient AI-GIS integration that improves user experience and workflow efficiency."""
 
-
 fancy_markdown(text)
+
+
+st.image("assets/ai_tools.jpg")
