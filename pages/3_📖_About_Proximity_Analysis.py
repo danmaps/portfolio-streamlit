@@ -9,11 +9,15 @@ def read_markdown_file(markdown_file):
     return text
 
 st.markdown("""
-            
 
 # Enhancing Spatial Analysis: Lessons Learned from Automating Proximity Analysis
 
 I recently took on a work project that began with a simple goal: perform spatial proximity analysis for a user. Initially, this was a manual task using ArcGIS Pro, but I ended up turning it into a fully automated tool. Here's a detailed look at what I learned, how I refined user requirements, leveraged open-source tools, and ultimately turned this into a useful and flexible tool.
+""",unsafe_allow_html=True)
+
+st.image("assets/app_screenshot.jpg")
+
+st.markdown("""
 
 ## The Manual Approach
 
@@ -27,8 +31,12 @@ Initially, I performed the analysis manually using ArcGIS Pro. This involved sev
     - **Spatial Join**: Joining the buffers with the original data to get the original attributes for each group and summing a field of interest.
 3. **Creating a Web App**: Developing a web application in ArcGIS Online to display the results interactively.
 
+[![](https://mermaid.ink/img/pako:eNpFUNtugkAQ_ZXNPGmCZEUQoUkTL01j0iam9qnAwxRW3ZRlybA0UvXfXalp52nOmTNnLifIdSEghj1hfWAvbw9pxWzMB8nTMRdlNmSj0eN5rWpNhmFVsFxX34LMmS2S5B0_S5Fl957FTbocJHPKn9dbtiGdDe-lZe-yEbTTpFhTo5FYspr0USppOmuMZdfI5sxWyX1wBg4oQQplYdc73XxSMAehRAqxTQukrxTS6mJ12Bq97aocYkOtcIB0uz9AvMOysaitCzRiJdHeqP5YUUij6fX3-v4JDtRYfWj9r7EY4hMcIQ4m3PWC2TgIp17Aw7EDnSV9N7JgEnHP55HHJxcHfvp-7s6sMvL9ceiF0TTks8sVcl9wLA?type=png)](https://mermaid-js.github.io/mermaid-live-editor/edit#pako:eNpFUNtugkAQ_ZXNPGmCZEUQoUkTL01j0iam9qnAwxRW3ZRlybA0UvXfXalp52nOmTNnLifIdSEghj1hfWAvbw9pxWzMB8nTMRdlNmSj0eN5rWpNhmFVsFxX34LMmS2S5B0_S5Fl957FTbocJHPKn9dbtiGdDe-lZe-yEbTTpFhTo5FYspr0USppOmuMZdfI5sxWyX1wBg4oQQplYdc73XxSMAehRAqxTQukrxTS6mJ12Bq97aocYkOtcIB0uz9AvMOysaitCzRiJdHeqP5YUUij6fX3-v4JDtRYfWj9r7EY4hMcIQ4m3PWC2TgIp17Aw7EDnSV9N7JgEnHP55HHJxcHfvp-7s6sMvL9ceiF0TTks8sVcl9wLA)
+            
 While this approach worked, it was labor-intensive and required significant effort for each new dataset. It became clear that automating this process would save time and ensure consistency.
 
+[![](https://mermaid.ink/img/pako:eNpFUMtuwjAQ_BVrTyAFZEJCHpUqFeitlaqiXkhyWMWbYDWOI8epSIF_r6Go3dPO7szs4wSlFgQp1Aa7A3t5f8hb5uJpkj0fS2qKKZvNHs8fXaNRMGwFK3X7Rcae2TrLatICLVYGFRXFXbq-KjaTbGcNoWqkLab3zubm9Uam0kaxvkMrsWGd0UeppB2dPTZjL_sz22b38QV4oMgolMItebr65GAPpCiH1KUCzWcOeXtxPBys3o1tCak1A3lg9FAfIK2w6R0aOrcqbSW6S9VflYS02rz-_uD2Cg86bPda_3MchvQER0jDJZ_7YbwIo5Uf8mjhweiKwTxxYJlwP-CJz5cXD75vej6PHTMJgkXkR8kq4vHlB7xoc3k?type=png)](https://mermaid-js.github.io/mermaid-live-editor/edit#pako:eNpFUMtuwjAQ_BVrTyAFZEJCHpUqFeitlaqiXkhyWMWbYDWOI8epSIF_r6Go3dPO7szs4wSlFgQp1Aa7A3t5f8hb5uJpkj0fS2qKKZvNHs8fXaNRMGwFK3X7Rcae2TrLatICLVYGFRXFXbq-KjaTbGcNoWqkLab3zubm9Uam0kaxvkMrsWGd0UeppB2dPTZjL_sz22b38QV4oMgolMItebr65GAPpCiH1KUCzWcOeXtxPBys3o1tCak1A3lg9FAfIK2w6R0aOrcqbSW6S9VflYS02rz-_uD2Cg86bPda_3MchvQER0jDJZ_7YbwIo5Uf8mjhweiKwTxxYJlwP-CJz5cXD75vej6PHTMJgkXkR8kq4vHlB7xoc3k)    
+            
 ## Refining User Requirements
 
 I first needed to understand the users' needs better. I decided that users would need:
@@ -76,11 +84,75 @@ def handle_file_upload():
 ### Proximity Analysis:
 ```python
 def process_data(df, lat_col, lon_col, distance_threshold, id_col=None):
+    # Convert DataFrame to GeoDataFrame and set the coordinate reference system (CRS)
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df[lon_col], df[lat_col]))
     projected_gdf = gdf.to_crs(epsg=32611)
-    # Spatial analysis logic here
+
+    # Spatial analysis logic:
+    # 1. Initialize spatial index for efficient querying of nearby points
+    tree = projected_gdf.sindex
+
+    # 2. Create a list to store the results
+    nearby_points = []
+
+    # 3. Iterate through each point in the GeoDataFrame
+    for index, row in projected_gdf.iterrows():
+        # 4. Create a buffer around each point with the given distance threshold
+        buffer = row.geometry.buffer(distance_threshold)
+
+        # 5. Find all points within the buffer using the spatial index
+        possible_matches_index = list(tree.intersection(buffer.bounds))
+        possible_matches = projected_gdf.iloc[possible_matches_index]
+
+        # 6. Filter these points to only include those within the exact distance threshold
+        precise_matches = possible_matches[
+            possible_matches.distance(row.geometry) <= distance_threshold
+        ]
+
+        # 7. Exclude the point itself from the results
+        precise_matches = precise_matches[precise_matches.index != index]
+
+        # 8. Collect information about each nearby point
+        for _, pm_row in precise_matches.iterrows():
+            nearby_point_info = {
+                "index": index,
+                "distance_feet": round(pm_row.geometry.distance(row.geometry) * 3.28084, 2),  # Convert distance to feet
+            }
+            if id_col:
+                nearby_point_info[f"nearby_{id_col}"] = pm_row[id_col]
+            nearby_points.append(nearby_point_info)
+
+    # 9. Convert the list of results into a DataFrame
+    nearby_df = pd.DataFrame(nearby_points)
+
+    # 10. Merge the original GeoDataFrame with the nearby points DataFrame
+    if not nearby_df.empty:
+        processed_gdf = gdf.merge(nearby_df, how="left", left_index=True, right_on="index")
+    else:
+        processed_gdf = gdf
+
     return processed_gdf
+
 ```
+### Details of Steps of Proximity Analysis
+
+1. **Convert DataFrame to GeoDataFrame**: This converts the input DataFrame `df` into a GeoDataFrame `gdf` with geometry based on the latitude (`lat_col`) and longitude (`lon_col`) columns. The CRS is initially set to EPSG:4326 (WGS 84) and then projected to EPSG:32611 (UTM zone 11N) for accurate distance calculations.
+
+2. **Spatial Indexing**: A spatial index (`tree`) is created for the projected GeoDataFrame to allow efficient spatial querying. 
+
+<details>
+  <summary>Why Use a Spatial Index?</summary>
+  A spatial index is used for performance optimization. Without it, finding all nearby points for each point would require comparing each point against every other point, resulting in a quadratic number of distance calculations (O(n^2)). The spatial index reduces this complexity by quickly narrowing down the list of potential nearby points using spatial relationships (like bounding boxes).
+</details>
+
+3. **Buffer Creation and Matching**: For each point in the GeoDataFrame, a buffer with the specified distance threshold is created. The spatial index is used to find all possible points within the buffer bounds.
+
+4. **Distance Filtering**: The possible matches are filtered to include only those within the exact distance threshold. The point itself is excluded from the matches.
+
+5. **Result Collection**: Information about each nearby point, including the distance in feet and optional ID columns, is collected and stored in a list.
+
+6. **Merge Results**: The results are converted to a DataFrame (`nearby_df`) and merged with the original GeoDataFrame (`gdf`) to create the final processed GeoDataFrame (`processed_gdf`).
+            
 
 ### Interactive Map Creation:
 ```python
@@ -103,4 +175,4 @@ This project was a significant learning experience. By refining user requirement
 So, while the initial manual process was effective, the automated tool has proven to be a far more efficient and user-friendly solution. It’s a perfect example of how engineering a solution thoughtfully can lead to a genuinely useful product.
         
 
-""")
+""",unsafe_allow_html=True)
